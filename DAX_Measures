@@ -1,0 +1,180 @@
+# DAX Measures
+
+## Total Revenue
+```DAX
+TOTAL REVENUE =
+SUM(Sales[Sales Amount])
+
+TOTAL PROFIT =
+SUM(Sales[Sales Amount]) -
+SUM(Sales[Total Product Cost])
+
+PROFIT MARGIN =
+DIVIDE(
+    [TOTAL PROFIT],
+    [TOTAL REVENUE],
+    0
+)
+
+TOTAL ORDERS =
+DISTINCTCOUNT(Sales[SalesOrderLineKey])
+
+UNITS SOLD =
+SUM(Sales[Order Quantity])
+
+AVG ORDER VALUE =
+DIVIDE(
+    [TOTAL REVENUE],
+    [TOTAL ORDERS],
+    0
+)
+
+Revenue KPI Text =
+VAR LatestFY = 2020
+VAR CurrentRevenue =
+    CALCULATE(
+        [TOTAL REVENUE],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY)
+    )
+VAR PreviousRevenue =
+    CALCULATE(
+        [TOTAL REVENUE],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY - 1)
+    )
+VAR Growth =
+    DIVIDE(CurrentRevenue - PreviousRevenue, PreviousRevenue)
+RETURN
+IF(
+    Growth >= 0,
+    "▲ " & FORMAT(Growth, "0.0%") & " YoY",
+    "▼ " & FORMAT(ABS(Growth), "0.0%") & " YoY"
+)
+
+Profit KPI Text =
+VAR LatestFY = 2020
+VAR CurrentProfit =
+    CALCULATE(
+        [TOTAL PROFIT],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY)
+    )
+VAR PreviousProfit =
+    CALCULATE(
+        [TOTAL PROFIT],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY - 1)
+    )
+VAR Growth =
+    DIVIDE(CurrentProfit - PreviousProfit, PreviousProfit)
+RETURN
+IF(
+    Growth >= 0,
+    "▲ " & FORMAT(Growth, "0.0%") & " YoY",
+    "▼ " & FORMAT(ABS(Growth), "0.0%") & " YoY"
+)
+
+Profit Margin KPI Text =
+VAR LatestFY = 2020
+VAR CurrentMargin =
+    CALCULATE(
+        [PROFIT MARGIN],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY)
+    )
+VAR PreviousMargin =
+    CALCULATE(
+        [PROFIT MARGIN],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY - 1)
+    )
+VAR MarginChange = CurrentMargin - PreviousMargin
+RETURN
+IF(
+    MarginChange >= 0,
+    "▲ " & FORMAT(MarginChange * 100, "0.0") & " pts",
+    "▼ " & FORMAT(ABS(MarginChange) * 100, "0.0") & " pts"
+)
+
+Orders KPI Text =
+VAR LatestFY = 2020
+VAR CurrentOrders =
+    CALCULATE(
+        [TOTAL ORDERS],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY)
+    )
+VAR PreviousOrders =
+    CALCULATE(
+        [TOTAL ORDERS],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY - 1)
+    )
+VAR Growth =
+    DIVIDE(CurrentOrders - PreviousOrders, PreviousOrders)
+RETURN
+IF(
+    Growth >= 0,
+    "▲ " & FORMAT(Growth, "0.0%") & " YoY",
+    "▼ " & FORMAT(ABS(Growth), "0.0%") & " YoY"
+)
+
+Units Sold KPI Text =
+VAR LatestFY = 2020
+VAR CurrentUnits =
+    CALCULATE(
+        [UNITS SOLD],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY)
+    )
+VAR PreviousUnits =
+    CALCULATE(
+        [UNITS SOLD],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY - 1)
+    )
+VAR Growth =
+    DIVIDE(CurrentUnits - PreviousUnits, PreviousUnits)
+RETURN
+IF(
+    Growth >= 0,
+    "▲ " & FORMAT(Growth, "0.0%") & " YoY",
+    "▼ " & FORMAT(ABS(Growth), "0.0%") & " YoY"
+)
+
+AOV Growth % =
+VAR LatestFY = 2020
+VAR CurrentAOV =
+    CALCULATE(
+        [AVG ORDER VALUE],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY)
+    )
+VAR PreviousAOV =
+    CALCULATE(
+        [AVG ORDER VALUE],
+        FILTER(ALL('Date'), VALUE(RIGHT('Date'[Fiscal Year], 4)) = LatestFY - 1)
+    )
+RETURN
+DIVIDE(CurrentAOV - PreviousAOV, PreviousAOV)
+
+AOV KPI Text =
+VAR Growth = [AOV Growth %]
+RETURN
+IF(
+    Growth >= 0,
+    "▲ " & FORMAT(Growth, "0.0%") & " YoY",
+    "▼ " & FORMAT(ABS(Growth), "0.0%") & " YoY"
+)
+
+Previous Year Revenue =
+CALCULATE(
+    [TOTAL REVENUE],
+    SAMEPERIODLASTYEAR('Date'[Date])
+)
+
+REVENUE GROWTH =
+VAR PrevRevenue =
+    CALCULATE(
+        [TOTAL REVENUE],
+        SAMEPERIODLASTYEAR('Date'[Date])
+    )
+RETURN
+IF(
+    ISBLANK(PrevRevenue),
+    BLANK(),
+    DIVIDE([TOTAL REVENUE] - PrevRevenue, PrevRevenue)
+)
+
+
+
